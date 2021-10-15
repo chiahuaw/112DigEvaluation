@@ -13,13 +13,12 @@
   
 ## 檔案說明
 
-01Data_alldig.RData：以API從道路挖掘管理系統下載之資料。
-01Data_case1.RData： 清理案件後之資料。
-01Data_case2.RData： 按抽選原則抽選後之資料。
-
-01lottery.R： 資料取得、清理及抽選之原始碼。
-02toXML.R： 抽選後檔案轉XML格式
-03toKPI.R：指標計算。
++ 01Data_alldig.RData：以API從道路挖掘管理系統下載之資料
++ 01Data_case1.RData： 清理案件後之資料
++ 01Data_case2.RData： 按抽選原則抽選後之資料
++ 01lottery.R： 資料取得、清理及抽選之原始碼
++ 02toXML.R： 抽選後檔案轉XML格式
++ 03toKPI.R：指標計算
 
 ## 指標計算結果
 
