@@ -133,12 +133,14 @@ case.nor<-data.frame(
   PH_URLA=rep("",nrow(appcase)),#施工後照片超連結
   DG_STATUS=as.character(appcase$CurrentStatus),#施工狀態 CurrentStatus
   CL_DA=appcase$cl_da,#完工結案日期 done
-  CHG_TYPE=rep("",nrow(appcase)),#變更類型(1~3)
+  CHG_TYPE=ifelse(appcase$ExDate!="","",2), #rep("",nrow(appcase)),#變更類型(1~3)
   CBE_DA=appcase$cbe_da,#最後核定復工/展延起始日期
   CEN_DA=appcase$cen_da,#最後核定復工/展延結束日期
   CENTER_COORDS_X=info2$X,#施工範圍中心點x坐標 info2$X
   CENTER_COORDS_Y=info2$Y,#施工範圍中心點y坐標 info2$Y
-  LASTMOD=rep("",nrow(appcase))#最後異動日期
+  LASTMOD=rep("",nrow(appcase)),#最後異動日期
+  CASE_TYPE=appcase$CaseType,#案件類型
+  WAREA_TYPE=rep(0,nrow(appcase)) #案件工區類型
   ,stringsAsFactors=F)
 
 
@@ -152,11 +154,8 @@ case.update$ADG_DA<-ifelse(is.na(case.update$ADG_DA),0,case.update$ADG_DA)
 
 case.update<-filter(case.update,AEN_DA!="")
 
-xmlbuff<-sprintf('<CASE_DETAIL LASTMOD="%s"><TOWN_CODE>%s</TOWN_CODE><TOWN_NAME>%s</TOWN_NAME><AC_NO>%s</AC_NO><CASE_ID>%s</CASE_ID><CONST_NAME>%s</CONST_NAME><LOCATION>%s</LOCATION><A_UN>%s</A_UN><ABE_DA>%s</ABE_DA><AEN_DA>%s</AEN_DA><ADG_DA>%s</ADG_DA><DACO_TI>%s</DACO_TI><NACO_TI>%s</NACO_TI><AREA_TA>%s</AREA_TA><UN_NA>%s</UN_NA><UR_NA>%s</UR_NA><UR_DR>%s</UR_DR><UR_TI>%s</UR_TI><DG_STATUS>%s</DG_STATUS><CENTER_COORDS><gml:Point><gml:coordinates>%s</gml:coordinates></gml:Point></CENTER_COORDS><POLY_LIST>%s</POLY_LIST></CASE_DETAIL>',
-                 case.update$LASTMOD,case.update$TOWN_CODE,case.update$TOWN_NAME,case.update$AC_NO,case.update$CASE_ID,case.update$CONST_NAME,
-                 case.update$LOCATION,case.update$A_UN,case.update$ABE_DA,case.update$AEN_DA,case.update$ADG_DA,
-                 case.update$DACO_TI,case.update$NACO_TI,case.update$AREA_TA,case.update$UN_NA,case.update$UR_NA,
-                 case.update$UR_DR,case.update$UR_TI,case.update$DG_STATUS,case.update$XY,
+xmlbuff<-sprintf('<COUNTY_CODE>%s</COUNTY_CODE><TOWN_CODE>%s</TOWN_CODE><TOWN_NAME>%s</TOWN_NAME><AC_NO>%s</AC_NO><CASE_ID>%s</CASE_ID><CONST_NAME>%s</CONST_NAME><LOCATION>%s</LOCATION><ADD_VI>%s</ADD_VI><DG_ROAD>%s</DG_ROAD><ADD_DAN>%s</ADD_DAN><ADD_SH>%s</ADD_SH><ADD_NA>%s</ADD_NA><ADD_NO>%s</ADD_NO><DG_ROAD2>%s</DG_ROAD2><DG_ROAD2_BE>%s</DG_ROAD2_BE><DG_ROAD2_EE>%s</DG_ROAD2_EE><A_UN>%s</A_UN><ABE_DA>%s</ABE_DA><AEN_DA>%s</AEN_DA><ADG_DA>%s</ADG_DA><DACO_TI>%s</DACO_TI><NACO_TI>%s</NACO_TI><AREA_TA>%s</AREA_TA><UN_NA>%s</UN_NA><UR_NA>%s</UR_NA><UR_DR>%s</UR_DR><UR_TI>%s</UR_TI><PURP>%s</PURP><PH_URLS>%s</PH_URLS><PH_URLA>%s</PH_URLA><DG_STATUS>%s</DG_STATUS><CL_DA>%s</CL_DA><CHG_TYPE>%s</CHG_TYPE><CBE_DA>%s</CBE_DA><CEN_DA>%s</CEN_DA><CENTER_COORDS_X><CENTER_COORDS><gml:Point><gml:coordinates>%s</gml:coordinates></gml:Point></CENTER_COORDS></CENTER_COORDS_X><CENTER_COORDS_Y><CENTER_COORDS><gml:Point><gml:coordinates>%s</gml:coordinates></gml:Point></CENTER_COORDS></CENTER_COORDS_Y><POLY_LIST><POLY_DETAIL WAREA_NO="1"><WAREA_POINT><gml:Point><gml:coordinates>%s</gml:coordinates></gml:Point></WAREA_POINT></POLY_LIST><LASTMOD>%s</LASTMOD><CASE_TYPE>%s</CASE_TYPE><WAREA_TYPE>%s</WAREA_TYPE>',
+                 case.update$COUNTY_CODE,case.update$TOWN_CODE,case.update$TOWN_NAME,case.update$AC_NO,case.update$CASE_ID,case.update$CONST_NAME,case.update$LOCATION,case.update$ADD_VI,case.update$DG_ROAD,case.update$ADD_DAN,case.update$ADD_SH,case.update$ADD_NA,case.update$ADD_NO,case.update$DG_ROAD2,case.update$DG_ROAD2_BE,case.update$DG_ROAD2_EE,case.update$A_UN,case.update$ABE_DA,case.update$AEN_DA,case.update$ADG_DA,case.update$DACO_TI,case.update$NACO_TI,case.update$AREA_TA,case.update$UN_NA,case.update$UR_NA,case.update$UR_DR,case.update$UR_TI,case.update$PURP,case.update$PH_URLS,case.update$PH_URLA,case.update$DG_STATUS,case.update$CL_DA,case.update$CHG_TYPE,case.update$CBE_DA,case.update$CEN_DA,case.update$CENTER_COORDS_X,case.update$CENTER_COORDS_Y,case.update$XY,case.update$LASTMOD,case.update$CASE_TYPE,case.update$WAREA_TYPE,
                  info3) %>% noquote()
 
 for (i in 1:length(xmlbuff)) {
@@ -171,5 +170,5 @@ for (i in 1:length(xmlbuff)) {
 xmlbuff<-paste0('<?xml version="1.0" encoding="UTF-8"?><DIG_CASE xmlns:gml="http://www.opengis.net/gml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><INFO County_Code="W" Count="',nrow(case.update),'"/><CASE_LIST>',
                 xmlbuff,'</CASE_LIST></DIG_CASE>') # %>% base64Encode()
 
-writeLines(xmlbuff,con = file("110digcaselist.xml"))
+writeLines(xmlbuff,con = file("110digcaselistV2.xml"))
 
