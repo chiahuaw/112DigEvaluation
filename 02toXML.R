@@ -154,21 +154,42 @@ case.update$ADG_DA<-ifelse(is.na(case.update$ADG_DA),0,case.update$ADG_DA)
 
 case.update<-filter(case.update,AEN_DA!="")
 
-xmlbuff<-sprintf('<COUNTY_CODE>%s</COUNTY_CODE><TOWN_CODE>%s</TOWN_CODE><TOWN_NAME>%s</TOWN_NAME><AC_NO>%s</AC_NO><CASE_ID>%s</CASE_ID><CONST_NAME>%s</CONST_NAME><LOCATION>%s</LOCATION><ADD_VI>%s</ADD_VI><DG_ROAD>%s</DG_ROAD><ADD_DAN>%s</ADD_DAN><ADD_SH>%s</ADD_SH><ADD_NA>%s</ADD_NA><ADD_NO>%s</ADD_NO><DG_ROAD2>%s</DG_ROAD2><DG_ROAD2_BE>%s</DG_ROAD2_BE><DG_ROAD2_EE>%s</DG_ROAD2_EE><A_UN>%s</A_UN><ABE_DA>%s</ABE_DA><AEN_DA>%s</AEN_DA><ADG_DA>%s</ADG_DA><DACO_TI>%s</DACO_TI><NACO_TI>%s</NACO_TI><AREA_TA>%s</AREA_TA><UN_NA>%s</UN_NA><UR_NA>%s</UR_NA><UR_DR>%s</UR_DR><UR_TI>%s</UR_TI><PURP>%s</PURP><PH_URLS>%s</PH_URLS><PH_URLA>%s</PH_URLA><DG_STATUS>%s</DG_STATUS><CL_DA>%s</CL_DA><CHG_TYPE>%s</CHG_TYPE><CBE_DA>%s</CBE_DA><CEN_DA>%s</CEN_DA><CENTER_COORDS_X><CENTER_COORDS><gml:Point><gml:coordinates>%s</gml:coordinates></gml:Point></CENTER_COORDS></CENTER_COORDS_X><CENTER_COORDS_Y><CENTER_COORDS><gml:Point><gml:coordinates>%s</gml:coordinates></gml:Point></CENTER_COORDS></CENTER_COORDS_Y><POLY_LIST><POLY_DETAIL WAREA_NO="1"><WAREA_POINT><gml:Point><gml:coordinates>%s</gml:coordinates></gml:Point></WAREA_POINT></POLY_LIST><LASTMOD>%s</LASTMOD><CASE_TYPE>%s</CASE_TYPE><WAREA_TYPE>%s</WAREA_TYPE>',
-                 case.update$COUNTY_CODE,case.update$TOWN_CODE,case.update$TOWN_NAME,case.update$AC_NO,case.update$CASE_ID,case.update$CONST_NAME,case.update$LOCATION,case.update$ADD_VI,case.update$DG_ROAD,case.update$ADD_DAN,case.update$ADD_SH,case.update$ADD_NA,case.update$ADD_NO,case.update$DG_ROAD2,case.update$DG_ROAD2_BE,case.update$DG_ROAD2_EE,case.update$A_UN,case.update$ABE_DA,case.update$AEN_DA,case.update$ADG_DA,case.update$DACO_TI,case.update$NACO_TI,case.update$AREA_TA,case.update$UN_NA,case.update$UR_NA,case.update$UR_DR,case.update$UR_TI,case.update$PURP,case.update$PH_URLS,case.update$PH_URLA,case.update$DG_STATUS,case.update$CL_DA,case.update$CHG_TYPE,case.update$CBE_DA,case.update$CEN_DA,case.update$CENTER_COORDS_X,case.update$CENTER_COORDS_Y,case.update$XY,case.update$LASTMOD,case.update$CASE_TYPE,case.update$WAREA_TYPE,
-                 info3) %>% noquote()
+# xmlbuff<-sprintf('<COUNTY_CODE>%s</COUNTY_CODE><TOWN_CODE>%s</TOWN_CODE><TOWN_NAME>%s</TOWN_NAME><AC_NO>%s</AC_NO><CASE_ID>%s</CASE_ID><CONST_NAME>%s</CONST_NAME><LOCATION>%s</LOCATION><ADD_VI>%s</ADD_VI><DG_ROAD>%s</DG_ROAD><ADD_DAN>%s</ADD_DAN><ADD_SH>%s</ADD_SH><ADD_NA>%s</ADD_NA><ADD_NO>%s</ADD_NO><DG_ROAD2>%s</DG_ROAD2><DG_ROAD2_BE>%s</DG_ROAD2_BE><DG_ROAD2_EE>%s</DG_ROAD2_EE><A_UN>%s</A_UN><ABE_DA>%s</ABE_DA><AEN_DA>%s</AEN_DA><ADG_DA>%s</ADG_DA><DACO_TI>%s</DACO_TI><NACO_TI>%s</NACO_TI><AREA_TA>%s</AREA_TA><UN_NA>%s</UN_NA><UR_NA>%s</UR_NA><UR_DR>%s</UR_DR><UR_TI>%s</UR_TI><PURP>%s</PURP><PH_URLS>%s</PH_URLS><PH_URLA>%s</PH_URLA><DG_STATUS>%s</DG_STATUS><CL_DA>%s</CL_DA><CHG_TYPE>%s</CHG_TYPE><CBE_DA>%s</CBE_DA><CEN_DA>%s</CEN_DA><CENTER_COORDS_X><CENTER_COORDS><gml:Point><gml:coordinates>%s</gml:coordinates></gml:Point></CENTER_COORDS></CENTER_COORDS_X><CENTER_COORDS_Y><CENTER_COORDS><gml:Point><gml:coordinates>%s</gml:coordinates></gml:Point></CENTER_COORDS></CENTER_COORDS_Y><POLY_LIST><POLY_DETAIL WAREA_NO="1"><WAREA_POINT><gml:Point><gml:coordinates>%s</gml:coordinates></gml:Point></WAREA_POINT></POLY_LIST><LASTMOD>%s</LASTMOD><CASE_TYPE>%s</CASE_TYPE><WAREA_TYPE>%s</WAREA_TYPE>',
+#                  case.update$COUNTY_CODE,case.update$TOWN_CODE,case.update$TOWN_NAME,case.update$AC_NO,case.update$CASE_ID,case.update$CONST_NAME,case.update$LOCATION,case.update$ADD_VI,case.update$DG_ROAD,case.update$ADD_DAN,case.update$ADD_SH,case.update$ADD_NA,case.update$ADD_NO,case.update$DG_ROAD2,case.update$DG_ROAD2_BE,case.update$DG_ROAD2_EE,case.update$A_UN,case.update$ABE_DA,case.update$AEN_DA,case.update$ADG_DA,case.update$DACO_TI,case.update$NACO_TI,case.update$AREA_TA,case.update$UN_NA,case.update$UR_NA,case.update$UR_DR,case.update$UR_TI,case.update$PURP,case.update$PH_URLS,case.update$PH_URLA,case.update$DG_STATUS,case.update$CL_DA,case.update$CHG_TYPE,case.update$CBE_DA,case.update$CEN_DA,case.update$CENTER_COORDS_X,case.update$CENTER_COORDS_Y,case.update$XY,case.update$LASTMOD,case.update$CASE_TYPE,case.update$WAREA_TYPE,
+#                  info3) %>% noquote()
+# 
+# for (i in 1:length(xmlbuff)) {
+#   if (i==1) {temp<-data.frame()}
+#   temp<-paste0(temp,xmlbuff[i])
+#   if (i==length(xmlbuff)) {
+#     xmlbuff<-temp %>% noquote()
+#     rm(temp)
+#   }
+# }
+# 
+# xmlbuff<-paste0('<?xml version="1.0" encoding="UTF-8"?><DIG_CASE xmlns:gml="http://www.opengis.net/gml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><INFO County_Code="W" Count="',nrow(case.update),'"/><CASE_LIST>',
+#                 xmlbuff,'</CASE_LIST></DIG_CASE>') # %>% base64Encode()
+# 
+# writeLines(xmlbuff,con = file("110digcaselistV2.xml"))
 
-for (i in 1:length(xmlbuff)) {
-  if (i==1) {temp<-data.frame()}
-  temp<-paste0(temp,xmlbuff[i])
-  if (i==length(xmlbuff)) {
-    xmlbuff<-temp %>% noquote()
-    rm(temp)
-  }
-}
+case3 = case.update
 
-xmlbuff<-paste0('<?xml version="1.0" encoding="UTF-8"?><DIG_CASE xmlns:gml="http://www.opengis.net/gml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><INFO County_Code="W" Count="',nrow(case.update),'"/><CASE_LIST>',
-                xmlbuff,'</CASE_LIST></DIG_CASE>') # %>% base64Encode()
+case3$POLY_LIST = sprintf("<POLY_LIST><POLY_DETAIL WAREA_NO='1'><WAREA_POINT><gml:Point><gml:coordinates>%s</gml:coordinates></gml:Point></WAREA_POINT></POLY_LIST>",case3$XY)
+case3$CENTER_COORDS_X = sprintf("<CENTER_COORDS_X><CENTER_COORDS><gml:Point><gml:coordinates>%s</gml:coordinates></gml:Point></CENTER_COORDS></CENTER_COORDS_X>",case3$CENTER_COORDS_X)
+case3$CENTER_COORDS_Y = sprintf("<CENTER_COORDS_Y><CENTER_COORDS><gml:Point><gml:coordinates>%s</gml:coordinates></gml:Point></CENTER_COORDS></CENTER_COORDS_Y>",case3$CENTER_COORDS_Y)
 
-writeLines(xmlbuff,con = file("110digcaselistV2.xml"))
+case3 = select(case3,-XY)
+case3 = cbind(case3[,c(1:37,41,38,39,40)])
 
+doc_xml = newXMLDoc(isHTML=FALSE)
+table_node = newXMLNode("DIG_CASE",doc=doc_xml)
+
+row_data=apply(case3,1,function(x) {
+  z1 = newXMLNode('CASE_LIST')
+  addChildren(z1,lapply(names(x), function(y) newXMLNode(y,x[y])))
+})
+
+xmlParent(row_data) = table_node
+
+saveXML(doc_xml,file="df1.xml")
+write.csv(case3,file="df1.csv",fileEncoding = "UTF8")
