@@ -80,3 +80,6 @@ kpi2$ratio = round(kpi2$已辦理圖資更新/kpi2$應辦理圖資更新,4)
 
 kpi1
 kpi2
+
+save(newdig2,file="02Data_newdig.RData")
+save(lottery.case,file="02Data_case1.RData")
