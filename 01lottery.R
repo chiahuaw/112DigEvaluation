@@ -4,8 +4,8 @@ library("jsonlite")
 
 ## 取得資料 ####
 
-target.m<-as.Date("2020-09-01") #設定時間區間
-target.m2<-as.Date("2021-08-31")
+target.m<-as.Date("2021-09-01") #設定時間區間
+target.m2<-as.Date("2022-08-31")
 
 tryCatch({ #透過API，取得道路挖掘資料。
   alldig = GET(sprintf("https://roaddig.kinmen.gov.tw/KMDigAPI/api/OpenData/GetCaseList?sdate=%s&edate=%s",target.m-365*2,target.m2),
@@ -34,7 +34,7 @@ for (i in 1:nrow(alldig)) { #以最後的展延日期為結案日期
 
 alldig$FiDate = as.Date(alldig$FiDate)
 
-alldig = filter(alldig,(FiDate+30>=target.m)&(FiDate+30<=target.m2)) #篩選結案日期位於時間區間內的案件
+alldig = filter(alldig,(FiDate>=target.m)&(FiDate<=target.m2)) #篩選結案日期位於時間區間內的案件
 
 #### fix ####
 
@@ -45,7 +45,6 @@ alldig$PPName2 = ifelse(grepl("自來水廠",alldig$PPName),"金門縣自來水�
 lottery.unit = c("中華電信公司金門營運處","台灣中油股份有限公司高雄營業處","台灣電力股份有限公司金門區營業處","金門縣自來水廠")
 
 lottery.case = filter(alldig,PPName2 %in% lottery.unit)
-lottery.case = filter(lottery.case,(FiDate<=as.Date("2021-10-14")))
 lottery.case = filter(lottery.case,CaseStatus %in% c("已完工","已完工收件","已報完工待收件"))
 lottery.case = arrange(lottery.case,PPName2,desc(Area))
 
@@ -79,10 +78,17 @@ for (i in 1:length(lottery.unit)) {
   
 }
 
+lottery.case3 = mutate(lottery.case2,city="金門縣政府",repair="自行修復",RoadType = ifelse(lottery.case2$RoadType=="柏油路面","柔性","剛性")) %>% 
+  select(.,CaseID,city,PPName2,Town,EngUse,repair,Road,RoadType,Length,Width,Area,RptDate,CaseStatus,RptDate) %>% 
+  `names<-`(c("案件編號","路權單位","申請單位","行政區","工程名稱","路面修復","施工地點","鋪面類型","挖掘長度","挖掘寬度","挖掘面積","報竣日期","案件狀態"))
+lottery.case3$完工結案日期 = as.Date(lottery.case3$報竣日期)+7
+
 #### 輸出 ####
 
 save(alldig,file="01Data_alldig.RData")
 save(lottery.case,file="01Data_case1.RData")
 save(lottery.case2,file="01Data_case2.RData")
 
+
 write.csv(lottery.case2,file="抽選案件清單.csv",fileEncoding="big5",row.names=F)
+write.csv(lottery.case3,file="案件提報清單.csv",fileEncoding="big5",row.names=F)

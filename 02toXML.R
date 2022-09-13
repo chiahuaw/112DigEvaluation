@@ -171,5 +171,5 @@ for (i in 1:length(xmlbuff)) {
 xmlbuff<-paste0('<?xml version="1.0" encoding="UTF-8"?><DIG_CASE xmlns:gml="http://www.opengis.net/gml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><INFO County_Code="W" Count="',nrow(case.update),'"/><CASE_LIST>',
                 xmlbuff,'</CASE_LIST></DIG_CASE>') # %>% base64Encode()
 
-writeLines(xmlbuff,con = file("110digcaselist.xml"))
+writeLines(xmlbuff,con = file("111digcaselist.xml"))
 
