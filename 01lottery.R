@@ -165,5 +165,6 @@ save(lottery.case,file="01Data_case1.RData")
 save(lottery.case2,file="01Data_case2.RData")
 
 
+write.csv(lottery.case,file="篩選案件清單.csv",fileEncoding="big5",row.names=F)
 write.csv(lottery.case2,file="抽選案件清單.csv",fileEncoding="big5",row.names=F)
 write.csv(lottery.case3,file="案件提報清單.csv",fileEncoding="big5",row.names=F)
