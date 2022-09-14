@@ -22,42 +22,13 @@ appcase$un_na<-""
 appcase$ur_dr<-""
 
 appcase$CurrentStatus = appcase$CaseStatus
-appcase$un_na = appcase$PPName2
+appcase$un_na = appcase$PPName
 appcase$town_name = substr(appcase$Town,1,3)
 appcase$DistrictNo = ""
 
-for (i in 1:nrow(appcase)) { #修正鄉鎮名
-  if (appcase$CaseID[i]=="3407") {appcase$town_name[i]="金湖鎮"}
-  if (appcase$CaseID[i]=="3410") {appcase$town_name[i]="金湖鎮"}
-  if (appcase$CaseID[i]=="3522") {appcase$town_name[i]="金寧鄉"}
-  if (appcase$CaseID[i]=="3545") {appcase$town_name[i]="金湖鎮"}
-  if (appcase$CaseID[i]=="3627") {appcase$town_name[i]="金寧鄉"}
-  if (appcase$CaseID[i]=="3658") {appcase$town_name[i]="金寧鄉"}
-  if (appcase$CaseID[i]=="3730") {appcase$town_name[i]="金寧鄉"}
-  if (appcase$CaseID[i]=="3806") {appcase$town_name[i]="金沙鎮"}
-  if (appcase$CaseID[i]=="3808") {appcase$town_name[i]="金沙鎮"}
-  if (appcase$CaseID[i]=="3815") {appcase$town_name[i]="金城鎮"}
-  if (appcase$CaseID[i]=="3821") {appcase$town_name[i]="金寧鄉"}
-  if (appcase$CaseID[i]=="3843") {appcase$town_name[i]="金湖鎮"}
-  if (appcase$CaseID[i]=="3876") {appcase$town_name[i]="金寧鄉"}
-  if (appcase$CaseID[i]=="3895") {appcase$town_name[i]="金寧鄉"}
-  if (appcase$CaseID[i]=="3899") {appcase$town_name[i]="金寧鄉"}
-  if (appcase$CaseID[i]=="3916") {appcase$town_name[i]="金寧鄉"}
-  if (appcase$CaseID[i]=="3931") {appcase$town_name[i]="金湖鎮"}
-  if (appcase$CaseID[i]=="3961") {appcase$town_name[i]="金湖鎮"}
-  if (appcase$CaseID[i]=="3976") {appcase$town_name[i]="金寧鄉"}
-  
-  if (appcase$town_name[i]=="金城鎮") {appcase$DistrictNo[i]="0902001"}
-  if (appcase$town_name[i]=="金湖鎮") {appcase$DistrictNo[i]="0902003"}
-  if (appcase$town_name[i]=="金沙鎮") {appcase$DistrictNo[i]="0902002"}
-  if (appcase$town_name[i]=="金寧鄉") {appcase$DistrictNo[i]="0902004"}
-  if (appcase$town_name[i]=="烈嶼鄉") {appcase$DistrictNo[i]="0902005"}
-  if (appcase$town_name[i]=="烏坵鄉") {appcase$DistrictNo[i]="0902006"}
-  
-}
 
 #建立
-#完工結案日期CL_DA>done、最後核定復工/展延起始日期CBE_DA#1041100007、最後核定復工/展延結束日期CEN_DA
+#完工結案日期CL_DA、最後核定復工/展延起始日期CBE_DA、最後核定復工/展延結束日期CEN_DA
 #變更類型(1~3)CHG_TYPE、最後異動日期LASTMOD
 
 appcase$cl_da<-appcase$FiDate

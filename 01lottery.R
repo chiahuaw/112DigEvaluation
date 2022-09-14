@@ -20,9 +20,14 @@ alldig = filter(alldig,!grepl("T",EngUse),!grepl("測試",EngUse)) #剔除測試
 alldig = mutate(alldig,Length=as.numeric(Length),Width=as.numeric(Width),Area=as.numeric(Area),X=as.numeric(alldig$X),Y=as.numeric(alldig$Y),AppDate=as.Date(AppDate),AllowStart=as.Date(AllowStart),AllowStop=as.Date(AllowStop))
 alldig = filter(alldig,!is.na(AllowStart)) #剔除未核定案件
 alldig$ExDate = gsub("　"," ",alldig$ExDate) 
+alldig$RptDate = gsub("\\/","-",alldig$RptDate)
 
 alldig$FiDate = ""
-for (i in 1:nrow(alldig)) { #以最後的展延日期為結案日期
+for (i in 1:nrow(alldig)) { #以提報完工日或最後的展延日期為結案日期
+  if (alldig$RptDate[i]!="") {
+    alldig$FiDate[i] = alldig$RptDate[i]
+    next
+  }
   if (alldig$ExDate[i]=="") {
     alldig$FiDate[i] = as.character(alldig$AllowStop[i])
     next
@@ -38,19 +43,87 @@ alldig = filter(alldig,(FiDate>=target.m)&(FiDate<=target.m2)) #篩選結案日�
 
 #### fix ####
 
-alldig$PPName2 = ifelse(grepl("自來水廠",alldig$PPName),"金門縣自來水廠",alldig$PPName)
+alldig$PPName = ifelse(grepl("自來水廠",alldig$PPName),"金門縣自來水廠",alldig$PPName)
+
+town.list = c("金城鎮","金湖鎮","金沙鎮","金寧鄉","烈嶼鄉")
+for (i in 1:nrow(alldig)) {
+  if (alldig$Town[i] %in% town.list) { next }
+  for (d in 1:length(town.list)) {
+    if (grepl(town.list[d],alldig$Town[i])) {
+      alldig$Town[i] = town.list[d]
+    }
+    if (grepl(town.list[d],alldig$Road[i])) {
+      alldig$Town[i] = town.list[d]
+    }
+  }
+}
+alldig$Town[alldig$CaseID=="2985"] = "金城鎮"
+alldig$Town[alldig$CaseID=="3306"] = "金沙鎮"
+alldig$Town[alldig$CaseID=="3417"] = "金沙鎮"
+alldig$Town[alldig$CaseID=="3421"] = "金沙鎮"
+alldig$Town[alldig$CaseID=="3427"] = "金沙鎮"
+alldig$Town[alldig$CaseID=="3431"] = "金沙鎮"
+alldig$Town[alldig$CaseID=="3806"] = "金沙鎮"
+alldig$Town[alldig$CaseID=="3808"] = "金沙鎮"
+alldig$Town[alldig$CaseID=="3821"] = "金寧鄉"
+alldig$Town[alldig$CaseID=="3839"] = "金寧鄉"
+alldig$Town[alldig$CaseID=="3843"] = "金湖鎮"
+alldig$Town[alldig$CaseID=="3899"] = "金寧鄉"
+alldig$Town[alldig$CaseID=="3954"] = "金城鎮"
+alldig$Town[alldig$CaseID=="3961"] = "金湖鎮"
+alldig$Town[alldig$CaseID=="3973"] = "金湖鎮"
+alldig$Town[alldig$CaseID=="4007"] = "烈嶼鄉"
+alldig$Town[alldig$CaseID=="4060"] = "金城鎮"
+alldig$Town[alldig$CaseID=="4063"] = "金寧鄉"
+alldig$Town[alldig$CaseID=="4064"] = "金寧鄉"
+alldig$Town[alldig$CaseID=="4067"] = "金寧鄉"
+alldig$Town[alldig$CaseID=="4069"] = "金城鎮"
+alldig$Town[alldig$CaseID=="4070"] = "金湖鎮"
+alldig$Town[alldig$CaseID=="4078"] = "金寧鄉"
+alldig$Town[alldig$CaseID=="4091"] = "金沙鎮"
+alldig$Town[alldig$CaseID=="4098"] = "金城鎮"
+alldig$Town[alldig$CaseID=="4170"] = "金湖鎮"
+alldig$Town[alldig$CaseID=="4172"] = "金城鎮"
+alldig$Town[alldig$CaseID=="4177"] = "金城鎮"
+alldig$Town[alldig$CaseID=="4189"] = "金城鎮"
+alldig$Town[alldig$CaseID=="4203"] = "金城鎮"
+alldig$Town[alldig$CaseID=="4222"] = "金沙鎮"
+alldig$Town[alldig$CaseID=="4265"] = "金湖鎮"
+alldig$Town[alldig$CaseID=="4266"] = "金湖鎮"
+alldig$Town[alldig$CaseID=="4267"] = "金湖鎮"
+alldig$Town[alldig$CaseID=="4268"] = "金沙鎮"
+alldig$Town[alldig$CaseID=="4272"] = "金湖鎮"
+alldig$Town[alldig$CaseID=="4280"] = "金城鎮"
+alldig$Town[alldig$CaseID=="4301"] = "金寧鄉"
+alldig$Town[alldig$CaseID=="4309"] = "金城鎮"
+alldig$Town[alldig$CaseID=="4313"] = "金湖鎮"
+alldig$Town[alldig$CaseID=="4314"] = "金湖鎮"
+alldig$Town[alldig$CaseID=="4315"] = "金寧鄉"
+alldig$Town[alldig$CaseID=="4316"] = "烈嶼鄉"
+alldig$Town[alldig$CaseID=="4326"] = "烈嶼鄉"
+alldig$Town[alldig$CaseID=="4335"] = "烈嶼鄉"
+alldig$Town[alldig$CaseID=="4358"] = "金湖鎮"
+alldig$Town[alldig$CaseID=="4367"] = "金城鎮"
+alldig$Town[alldig$CaseID=="4369"] = "金湖鎮"
+alldig$Town[alldig$CaseID=="4405"] = "烈嶼鄉"
+alldig$Town[alldig$CaseID=="4454"] = "金城鎮"
+alldig$Town[alldig$CaseID=="4455"] = "金寧鄉"
+alldig$Town[alldig$CaseID=="4466"] = "金寧鄉"
+alldig$Town[alldig$CaseID=="4496"] = "金寧鄉"
+alldig$Town[alldig$CaseID=="4555"] = "金湖鎮"
+
 
 #### 抽選 ####
 
 lottery.unit = c("中華電信公司金門營運處","台灣中油股份有限公司高雄營業處","台灣電力股份有限公司金門區營業處","金門縣自來水廠")
 
-lottery.case = filter(alldig,PPName2 %in% lottery.unit)
+lottery.case = filter(alldig,PPName %in% lottery.unit)
 lottery.case = filter(lottery.case,CaseStatus %in% c("已完工","已完工收件","已報完工待收件"))
-lottery.case = arrange(lottery.case,PPName2,desc(Area))
+lottery.case = arrange(lottery.case,PPName,desc(Area))
 
 lottery.case2 = data.frame()
 for (i in 1:length(lottery.unit)) {
-  Temp = filter(lottery.case,PPName2==lottery.unit[i]) #選取同單位案件
+  Temp = filter(lottery.case,PPName==lottery.unit[i]) #選取同單位案件
   
   if (nrow(Temp)==0) {next} #若無案件，跳過
   if (nrow(Temp)<=15) {  #若不足15件，全取
@@ -78,10 +151,12 @@ for (i in 1:length(lottery.unit)) {
   
 }
 
+summarise(group_by(lottery.case2,PPName),n=n())
+
 lottery.case3 = mutate(lottery.case2,city="金門縣政府",repair="自行修復",RoadType = ifelse(lottery.case2$RoadType=="柏油路面","柔性","剛性")) %>% 
-  select(.,CaseID,city,PPName2,Town,EngUse,repair,Road,RoadType,Length,Width,Area,RptDate,CaseStatus,RptDate) %>% 
+  select(.,CaseID,city,PPName,Town,EngUse,repair,Road,RoadType,Length,Width,Area,RptDate,CaseStatus,RptDate) %>% 
   `names<-`(c("案件編號","路權單位","申請單位","行政區","工程名稱","路面修復","施工地點","鋪面類型","挖掘長度","挖掘寬度","挖掘面積","報竣日期","案件狀態"))
-lottery.case3$完工結案日期 = as.Date(lottery.case3$報竣日期)+7
+lottery.case3$完工結案日期 = as.Date(lottery.case3$報竣日期)
 
 #### 輸出 ####
 
