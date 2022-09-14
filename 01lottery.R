@@ -153,7 +153,7 @@ for (i in 1:length(lottery.unit)) {
 
 summarise(group_by(lottery.case2,PPName),n=n())
 
-lottery.case3 = mutate(lottery.case2,city="金門縣政府",repair="自行修復",RoadType = ifelse(lottery.case2$RoadType=="柏油路面","柔性","剛性")) %>% 
+lottery.case3 = mutate(lottery.case2,city="金門縣政府",repair="自行修復",RoadType = ifelse(grepl("柏油路面",lottery.case2$RoadType),"柔性","剛性")) %>% 
   select(.,CaseID,city,PPName,Town,EngUse,repair,Road,RoadType,Length,Width,Area,RptDate,CaseStatus,RptDate) %>% 
   `names<-`(c("案件編號","路權單位","申請單位","行政區","工程名稱","路面修復","施工地點","鋪面類型","挖掘長度","挖掘寬度","挖掘面積","報竣日期","案件狀態"))
 lottery.case3$完工結案日期 = as.Date(lottery.case3$報竣日期)
