@@ -70,7 +70,8 @@ info2<-select(appcase,X,Y)
 
 ####清理座標範圍清單####
 
-info3<-paste0('<POLY_DETAIL WAREA_NO="',polylist$no,'"><WAREA_POLY><gml:MultiPolygon srsName="EPSG:3825">',polylist$gml,'</gml:MultiPolygon></WAREA_POLY>') %>% noquote()
+#info3<-paste0('<POLY_DETAIL WAREA_NO="',polylist$no,'"><WAREA_POLY><gml:MultiPolygon srsName="EPSG:3825">',polylist$gml,'</gml:MultiPolygon></WAREA_POLY>') %>% noquote()
+info3<-paste0('<gml:MultiPolygon srsName="EPSG:3825">',polylist$gml,'</gml:MultiPolygon>') %>% noquote()
 
 #### 組合欄位 ####
 case.nor<-data.frame(
