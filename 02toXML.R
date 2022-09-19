@@ -12,6 +12,7 @@ load("01Data_alldig.RData")
 load("01Data_case1.RData")
 load("01Data_case2.RData")
 
+load("polylist.RData")
 
 #### 建立資料表 ####
 
@@ -26,6 +27,7 @@ appcase$un_na = appcase$PPName
 appcase$town_name = substr(appcase$Town,1,3)
 appcase$DistrictNo = ""
 
+appcase$polylist = polylist$poly[polylist$CaseID==appcase$CaseID]
 
 #建立
 #完工結案日期CL_DA、最後核定復工/展延起始日期CBE_DA、最後核定復工/展延結束日期CEN_DA
@@ -69,7 +71,7 @@ info1 = gsub("\\)","",info1)
 info2<-select(appcase,X,Y)
 
 ####清理座標範圍清單####
-info3<-paste0('<gml:MultiPolygon srsName="EPSG:3825">',"",'</gml:MultiPolygon>') %>% noquote()
+#info3<-paste0('<gml:MultiPolygon srsName="EPSG:3825">',"",'</gml:MultiPolygon>') %>% noquote()
 #### 組合欄位 ####
 case.nor<-data.frame(
   COUNTY_CODE=rep("W",nrow(appcase)),#縣市代碼
@@ -109,7 +111,10 @@ case.nor<-data.frame(
   CEN_DA=appcase$cen_da,#最後核定復工/展延結束日期
   CENTER_COORDS_X=info2$X,#施工範圍中心點x坐標 info2$X
   CENTER_COORDS_Y=info2$Y,#施工範圍中心點y坐標 info2$Y
-  LASTMOD=rep("",nrow(appcase))#最後異動日期
+  POLY_LIST=appcase$polylist,
+  LASTMOD=rep("",nrow(appcase)),#最後異動日期
+  CASE_TYPE = ifelse(appcase$CaseType=="一般案件",0,ifelse(appcase$CaseType=="民生案件",5,9)),
+  WAREA_TYPE=ifelse(grepl("WAREA_NO=1>",appcase$polylist),0,1)
   ,stringsAsFactors=F)
 
 
@@ -128,7 +133,7 @@ xmlbuff<-sprintf('<CASE_DETAIL LASTMOD="%s"><TOWN_CODE>%s</TOWN_CODE><TOWN_NAME>
                  case.update$LOCATION,case.update$A_UN,case.update$ABE_DA,case.update$AEN_DA,case.update$ADG_DA,
                  case.update$DACO_TI,case.update$NACO_TI,case.update$AREA_TA,case.update$UN_NA,case.update$UR_NA,
                  case.update$UR_DR,case.update$UR_TI,case.update$DG_STATUS,case.update$XY,
-                 info3) %>% noquote()
+                 case.update$POLY_LIST) %>% noquote()
 
 for (i in 1:length(xmlbuff)) {
   if (i==1) {temp<-data.frame()}

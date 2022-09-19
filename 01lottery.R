@@ -116,6 +116,7 @@ alldig$Town[alldig$CaseID=="4555"] = "金湖鎮"
 #### 抽選 ####
 
 lottery.unit = c("中華電信公司金門營運處","台灣中油股份有限公司高雄營業處","台灣電力股份有限公司金門區營業處","金門縣自來水廠")
+lottery.town = c("金城鎮","金湖鎮","金寧鄉","金沙鎮","烈嶼鄉")
 
 lottery.case = filter(alldig,PPName %in% lottery.unit)
 lottery.case = filter(lottery.case,CaseStatus %in% c("已完工","已完工收件","已報完工待收件"))
@@ -130,16 +131,27 @@ for (i in 1:length(lottery.unit)) {
     lottery.case2 = rbind(lottery.case2,Temp)
     rm(Temp)
     next
-  } else { #若大於15件，抽選方式
+  } else {
+    
+    #各鄉鎮各1件
+    for (t in 1:length(lottery.town)) {
+      if (lottery.town[i] %in% Temp$Town) {
+        lottery.case2 = rbind(lottery.case2,(Temp[grepl(lottery.town[i],Temp$Town),][1,]))
+      }
+    }
+    
+    Temp = filter(Temp,!(CaseID %in% lottery.case2$CaseID))
+    
+    #若大於15件，抽選方式
     if (nrow(Temp)<=30) { #抽選方式1，小於30件，按面積由大至小抽依序取15件
       lottery.case2 = rbind(lottery.case2,head(Temp,15))
       rm(Temp)
       next
     } else { #抽選方式2，大於30件時，採隨機抽選15件面積均大於中位數的案件
       Temp2.mid = quantile(Temp$Area,0.5)[[1]]
-      
+
       Temp2 = sample_n(filter(Temp,Area>=Temp2.mid),15,replace = F)
-      
+
       lottery.case2 = rbind(lottery.case2,Temp2)
       rm(Temp)
       rm(Temp2)
@@ -151,12 +163,48 @@ for (i in 1:length(lottery.unit)) {
   
 }
 
-summarise(group_by(lottery.case2,PPName),n=n())
+lottery.case2 = unique(lottery.case2)
 
+summarise(group_by(lottery.case2,PPName,Town),n=n())
+
+## 補齊結案日期
+
+fi_up = read.csv("fi_up_含文號日期.csv")
+
+for (i in 1:nrow(lottery.case2)) {
+  if (lottery.case2$CaseID[i] %in% fi_up$CaseID) {
+    print(lottery.case2$CaseID[i])
+    if (fi_up$會勘日期[fi_up$CaseID==lottery.case2$CaseID[i]]=="") {
+      lottery.case2$FiDate[i] = lottery.case2$RptDate[i]
+    } else {
+      lottery.case2$FiDate[i] = fi_up$會勘日期[fi_up$CaseID==lottery.case2$CaseID[i]]
+    }
+    
+  }
+}
+
+fi_up = read.csv("fi_up2.csv")
+
+for (i in 1:nrow(lottery.case2)) {
+  if (lottery.case2$CaseID[i] %in% fi_up$CaseID) {
+    print(lottery.case2$CaseID[i])
+    if (fi_up$FiDate[fi_up$CaseID==lottery.case2$CaseID[i]]=="") {
+      lottery.case2$FiDate[i] = lottery.case2$RptDate[i]
+    } else {
+      lottery.case2$FiDate[i] = fi_up$FiDate[fi_up$CaseID==lottery.case2$CaseID[i]]
+    }
+    
+  }
+}
+
+lottery.case2$FiDate = as.character(lottery.case2$FiDate)
+lottery.case2$FiDate = ifelse(lottery.case2$FiDate==lottery.case2$RptDate,"",lottery.case2$FiDate)
+
+#調整輸出案件提報清單格式
 lottery.case3 = mutate(lottery.case2,city="金門縣政府",repair="自行修復",RoadType = ifelse(grepl("柏油路面",lottery.case2$RoadType),"柔性","剛性")) %>% 
-  select(.,CaseID,city,PPName,Town,EngUse,repair,Road,RoadType,Length,Width,Area,RptDate,CaseStatus,RptDate) %>% 
-  `names<-`(c("案件編號","路權單位","申請單位","行政區","工程名稱","路面修復","施工地點","鋪面類型","挖掘長度","挖掘寬度","挖掘面積","報竣日期","案件狀態"))
-lottery.case3$完工結案日期 = as.Date(lottery.case3$報竣日期)
+  select(.,CaseID,city,PPName,Town,EngUse,repair,Road,RoadType,Length,Width,Area,RptDate,CaseStatus,FiDate) %>% 
+  `names<-`(c("案件編號","路權單位","申請單位","行政區","工程名稱","路面修復","施工地點","鋪面類型","挖掘長度","挖掘寬度","挖掘面積","報竣日期","案件狀態","完工結案日期"))
+#lottery.case3$完工結案日期 = as.Date(lottery.case3$報竣日期)
 
 #### 輸出 ####
 
