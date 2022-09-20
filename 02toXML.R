@@ -71,7 +71,24 @@ info2<-select(appcase,X,Y)
 ####清理座標範圍清單####
 
 #info3<-paste0('<POLY_DETAIL WAREA_NO="',polylist$no,'"><WAREA_POLY><gml:MultiPolygon srsName="EPSG:3825">',polylist$gml,'</gml:MultiPolygon></WAREA_POLY>') %>% noquote()
-info3<-paste0('<gml:MultiPolygon srsName="EPSG:3825">',polylist$gml,'</gml:MultiPolygon>') %>% noquote()
+#info3<-paste0('<WAREA_POLY><gml:MultiPolygon srsName="EPSG:3825">',polylist$gml,'</gml:MultiPolygon></WAREA_POLY>') %>% noquote()
+
+info3=data.frame(stringsAsFactors = F)
+for (i in 1:nrow(polylist)) {
+  if (polylist$no[i]==1) {
+    info3=rbind(info3,data.frame(gml=paste0('<WAREA_POLY><gml:MultiPolygon srsName="EPSG:3825">',polylist$gml[i],'</gml:MultiPolygon></WAREA_POLY>'),stringsAsFactors = F))
+  } else {
+    temp1= unlist(strsplit(polylist$gml[i],"</gml:polygonMember>"))
+    temp1 = paste0(temp1,"</gml:polygonMember>")
+    temp2 = list()
+    for (d in 1:length(temp1)) {
+      temp2 = paste0(temp2,'<WAREA_POLY><gml:MultiPolygon srsName="EPSG:3825">',temp1[d],'</gml:MultiPolygon></WAREA_POLY>')
+    }
+    info3 = rbind(info3,data.frame(gml=temp2,stringsAsFactors = F))
+    rm(temp1)
+    rm(temp2)
+  }
+}
 
 #### 組合欄位 ####
 case.nor<-data.frame(
@@ -113,9 +130,9 @@ case.nor<-data.frame(
   CENTER_COORDS_X=info2$X,#施工範圍中心點x坐標 info2$X
   CENTER_COORDS_Y=info2$Y,#施工範圍中心點y坐標 info2$Y
   #POLY_LIST=appcase$polylist,
-  LASTMOD=rep("",nrow(appcase)),#最後異動日期
-  CASE_TYPE = ifelse(appcase$CaseType=="一般案件",0,ifelse(appcase$CaseType=="民生案件",5,9)),
-  WAREA_TYPE=ifelse(grepl("WAREA_NO=1>",appcase$polylist),0,1)
+  LASTMOD=rep("",nrow(appcase))#最後異動日期
+  #CASE_TYPE = ifelse(appcase$CaseType=="一般案件",0,ifelse(appcase$CaseType=="民生案件",5,9)),
+  #WAREA_TYPE=ifelse(grepl("WAREA_NO=1>",appcase$polylist),0,1)
   ,stringsAsFactors=F)
 
 
@@ -134,7 +151,7 @@ xmlbuff<-sprintf('<CASE_DETAIL LASTMOD="%s"><TOWN_CODE>%s</TOWN_CODE><TOWN_NAME>
                  case.update$LOCATION,case.update$A_UN,case.update$ABE_DA,case.update$AEN_DA,case.update$ADG_DA,
                  case.update$DACO_TI,case.update$NACO_TI,case.update$AREA_TA,case.update$UN_NA,case.update$UR_NA,
                  case.update$UR_DR,case.update$UR_TI,case.update$DG_STATUS,case.update$XY,
-                 info3) %>% noquote()
+                 info3$gml) %>% noquote()
 
 for (i in 1:length(xmlbuff)) {
   if (i==1) {temp<-data.frame()}
