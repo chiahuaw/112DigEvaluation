@@ -22,24 +22,54 @@ alldig = filter(alldig,!is.na(AllowStart)) #剔除未核定案件
 alldig$ExDate = gsub("　"," ",alldig$ExDate) 
 alldig$RptDate = gsub("\\/","-",alldig$RptDate)
 
+## 補齊結案日期
+## 1
 alldig$FiDate = ""
-for (i in 1:nrow(alldig)) { #以提報完工日或最後的展延日期為結案日期
-  if (alldig$RptDate[i]!="") {
-    alldig$FiDate[i] = alldig$RptDate[i]
-    next
+casedone = read.csv("caseDoneList.csv",encoding="big5",stringsAsFactors = F)
+casedone = filter(casedone,grepl("民國",會勘時間))
+casedone$date = sprintf("%s-%s-%s",as.numeric(substr(casedone$會勘時間,3,5))+1911,substr(casedone$會勘時間,7,8),substr(casedone$會勘時間,10,11))
+for (i in 1:nrow(alldig)) {
+  print(i)
+  if (alldig$CaseID[i] %in% casedone$案號) {
+    alldig$FiDate[i] = last(casedone$date[casedone$案號==alldig$CaseID[i]])
+  
   }
-  if (alldig$ExDate[i]=="") {
-    alldig$FiDate[i] = as.character(alldig$AllowStop[i])
-    next
-  } else {
-    alldig$FiDate[i] = (substr(alldig$ExDate[i],nchar(alldig$ExDate[i])-10,nchar(alldig$ExDate[i])-1))
-    next
-    }
 }
 
-alldig$FiDate = as.Date(alldig$FiDate)
 
-alldig = filter(alldig,(FiDate>=target.m)&(FiDate<=target.m2)) #篩選結案日期位於時間區間內的案件
+## 2
+fi_up = read.csv("fi_up_含文號日期.csv")
+
+for (i in 1:nrow(alldig)) {
+  if (alldig$CaseID[i] %in% fi_up$CaseID) {
+    print(alldig$CaseID[i])
+    if (all(fi_up$會勘日期[fi_up$CaseID==alldig$CaseID[i]]=="")) {
+      #alldig$FiDate[i] = alldig$RptDate[i]
+    } else {
+      alldig$FiDate[i] = last(fi_up$會勘日期[fi_up$CaseID==alldig$CaseID[i]])
+    }
+    
+  }
+}
+
+fi_up = read.csv("fi_up2.csv")
+
+for (i in 1:nrow(alldig)) {
+  if (alldig$CaseID[i] %in% fi_up$CaseID) {
+    print(alldig$CaseID[i])
+    if (all(fi_up$FiDate[fi_up$CaseID==alldig$CaseID[i]]=="")) {
+      #alldig$FiDate[i] = alldig$RptDate[i]
+    } else {
+      alldig$FiDate[i] = fi_up$FiDate[fi_up$CaseID==alldig$CaseID[i]]
+    }
+    
+  }
+}
+
+
+#篩選結案日期位於時間區間內的案件
+
+alldig = filter(alldig,(AllowStart>=target.m)&(AllowStart<=target.m2),FiDate!="") 
 
 #### fix ####
 
@@ -166,39 +196,6 @@ for (i in 1:length(lottery.unit)) {
 lottery.case2 = unique(lottery.case2)
 
 summarise(group_by(lottery.case2,PPName,Town),n=n())
-
-## 補齊結案日期
-
-fi_up = read.csv("fi_up_含文號日期.csv")
-
-for (i in 1:nrow(lottery.case2)) {
-  if (lottery.case2$CaseID[i] %in% fi_up$CaseID) {
-    print(lottery.case2$CaseID[i])
-    if (fi_up$會勘日期[fi_up$CaseID==lottery.case2$CaseID[i]]=="") {
-      lottery.case2$FiDate[i] = lottery.case2$RptDate[i]
-    } else {
-      lottery.case2$FiDate[i] = fi_up$會勘日期[fi_up$CaseID==lottery.case2$CaseID[i]]
-    }
-    
-  }
-}
-
-fi_up = read.csv("fi_up2.csv")
-
-for (i in 1:nrow(lottery.case2)) {
-  if (lottery.case2$CaseID[i] %in% fi_up$CaseID) {
-    print(lottery.case2$CaseID[i])
-    if (fi_up$FiDate[fi_up$CaseID==lottery.case2$CaseID[i]]=="") {
-      lottery.case2$FiDate[i] = lottery.case2$RptDate[i]
-    } else {
-      lottery.case2$FiDate[i] = fi_up$FiDate[fi_up$CaseID==lottery.case2$CaseID[i]]
-    }
-    
-  }
-}
-
-lottery.case2$FiDate = as.character(lottery.case2$FiDate)
-lottery.case2$FiDate = ifelse(lottery.case2$FiDate==lottery.case2$RptDate,"",lottery.case2$FiDate)
 
 #調整輸出案件提報清單格式
 lottery.case3 = mutate(lottery.case2,city="金門縣政府",repair="自行修復",RoadType = ifelse(grepl("柏油路面",lottery.case2$RoadType),"柔性","剛性")) %>% 

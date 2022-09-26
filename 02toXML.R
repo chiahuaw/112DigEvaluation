@@ -16,6 +16,9 @@ load("polylist.RData")
 
 #### 建立資料表 ####
 
+lottery.case2$CaseStatus = ifelse(lottery.case2$CaseStatus=="已完工",lottery.case2$CaseStatus,
+                                  ifelse(lottery.case2$FiDate!="","已完工",lottery.case2$CaseStatus)) #fix實質完工
+
 appcase<-mutate(lottery.case2,StartDate=as.Date(AllowStart))
 appcase<-arrange(appcase,CaseID)
 appcase$town_name<-""
@@ -76,13 +79,13 @@ info2<-select(appcase,X,Y)
 info3=data.frame(stringsAsFactors = F)
 for (i in 1:nrow(polylist)) {
   if (polylist$no[i]==1) {
-    info3=rbind(info3,data.frame(gml=paste0('<WAREA_POLY><gml:MultiPolygon srsName="EPSG:3825">',polylist$gml[i],'</gml:MultiPolygon></WAREA_POLY>'),stringsAsFactors = F))
+    info3=rbind(info3,data.frame(gml=paste0('<POLY_DETAIL WAREA_NO="1"><WAREA_POLY><gml:MultiPolygon srsName="EPSG:3825">',polylist$gml[i],'</gml:MultiPolygon></WAREA_POLY></POLY_DETAIL>'),stringsAsFactors = F))
   } else {
     temp1= unlist(strsplit(polylist$gml[i],"</gml:polygonMember>"))
     temp1 = paste0(temp1,"</gml:polygonMember>")
     temp2 = list()
     for (d in 1:length(temp1)) {
-      temp2 = paste0(temp2,'<WAREA_POLY><gml:MultiPolygon srsName="EPSG:3825">',temp1[d],'</gml:MultiPolygon></WAREA_POLY>')
+      temp2 = paste0(temp2,'<POLY_DETAIL WAREA_NO="',d,'"><WAREA_POLY><gml:MultiPolygon srsName="EPSG:3825">',temp1[d],'</gml:MultiPolygon></WAREA_POLY></POLY_DETAIL>')
     }
     info3 = rbind(info3,data.frame(gml=temp2,stringsAsFactors = F))
     rm(temp1)
