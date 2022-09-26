@@ -14,6 +14,10 @@ load("01Data_case2.RData")
 
 load("polylist.RData")
 
+polylist = filter(polylist,CaseID %in% lottery.case2$CaseID)
+
+lottery.case2 = arrange(lottery.case2,CaseID)
+polylist = arrange(polylist,CaseID)
 #### 建立資料表 ####
 
 lottery.case2$CaseStatus = ifelse(lottery.case2$CaseStatus=="已完工",lottery.case2$CaseStatus,
