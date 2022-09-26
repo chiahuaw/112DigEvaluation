@@ -28,5 +28,7 @@ for (i in 1:nrow(temp)) {
   }
 }
 
+ polylist = temp
+ rm(temp)
 
 save(polylist,file="polylist.RData")
