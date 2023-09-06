@@ -4,8 +4,8 @@ library("jsonlite")
 
 ## 取得資料 ####
 
-target.m<-as.Date("2021-09-01") #設定時間區間
-target.m2<-as.Date("2022-08-31")
+target.m<-as.Date("2022-09-01") #設定時間區間
+target.m2<-as.Date("2023-08-31")
 
 tryCatch({ #透過API，取得道路挖掘資料。
   alldig = GET(sprintf("https://roaddig.kinmen.gov.tw/KMDigAPI/api/OpenData/GetCaseList?sdate=%s&edate=%s",target.m-365*2,target.m2),
@@ -22,58 +22,17 @@ alldig = filter(alldig,!is.na(AllowStart)) #剔除未核定案件
 alldig$ExDate = gsub("　"," ",alldig$ExDate) 
 alldig$RptDate = gsub("\\/","-",alldig$RptDate)
 
-## 補齊結案日期
-## 1
-alldig$FiDate = ""
-casedone = read.csv("caseDoneList.csv",encoding="big5",stringsAsFactors = F)
-casedone = filter(casedone,grepl("民國",會勘時間))
-casedone$date = sprintf("%s-%s-%s",as.numeric(substr(casedone$會勘時間,3,5))+1911,substr(casedone$會勘時間,7,8),substr(casedone$會勘時間,10,11))
-for (i in 1:nrow(alldig)) {
-  print(i)
-  if (alldig$CaseID[i] %in% casedone$案號) {
-    alldig$FiDate[i] = last(casedone$date[casedone$案號==alldig$CaseID[i]])
-  
-  }
-}
-
-
-## 2
-fi_up = read.csv("fi_up_含文號日期.csv")
-
-for (i in 1:nrow(alldig)) {
-  if (alldig$CaseID[i] %in% fi_up$CaseID) {
-    print(alldig$CaseID[i])
-    if (all(fi_up$會勘日期[fi_up$CaseID==alldig$CaseID[i]]=="")) {
-      #alldig$FiDate[i] = alldig$RptDate[i]
-    } else {
-      alldig$FiDate[i] = last(fi_up$會勘日期[fi_up$CaseID==alldig$CaseID[i]])
-    }
-    
-  }
-}
-
-fi_up = read.csv("fi_up2.csv")
-
-for (i in 1:nrow(alldig)) {
-  if (alldig$CaseID[i] %in% fi_up$CaseID) {
-    print(alldig$CaseID[i])
-    if (all(fi_up$FiDate[fi_up$CaseID==alldig$CaseID[i]]=="")) {
-      #alldig$FiDate[i] = alldig$RptDate[i]
-    } else {
-      alldig$FiDate[i] = fi_up$FiDate[fi_up$CaseID==alldig$CaseID[i]]
-    }
-    
-  }
-}
-
 
 #篩選結案日期位於時間區間內的案件
 
-alldig = filter(alldig,(AllowStart>=target.m)&(AllowStart<=target.m2),FiDate!="") 
+alldig = filter(alldig,(AllowStart>=target.m)&(AllowStart<=target.m2+30),RptDate!="") 
 
 #### fix ####
 
 alldig$PPName = ifelse(grepl("自來水廠",alldig$PPName),"金門縣自來水廠",alldig$PPName)
+
+notwaterdoit= c(5137,5178,5115,4803,5035,5202,5218)
+alldig = filter(alldig,!(CaseID %in% notwaterdoit))
 
 town.list = c("金城鎮","金湖鎮","金沙鎮","金寧鄉","烈嶼鄉")
 for (i in 1:nrow(alldig)) {
@@ -87,6 +46,9 @@ for (i in 1:nrow(alldig)) {
     }
   }
 }
+
+alldig = filter(alldig,!grepl("污水",EngUse))
+
 alldig$Town[alldig$CaseID=="2985"] = "金城鎮"
 alldig$Town[alldig$CaseID=="3306"] = "金沙鎮"
 alldig$Town[alldig$CaseID=="3417"] = "金沙鎮"
@@ -141,6 +103,11 @@ alldig$Town[alldig$CaseID=="4455"] = "金寧鄉"
 alldig$Town[alldig$CaseID=="4466"] = "金寧鄉"
 alldig$Town[alldig$CaseID=="4496"] = "金寧鄉"
 alldig$Town[alldig$CaseID=="4555"] = "金湖鎮"
+alldig$Town[alldig$CaseID=="4699"] = "金湖鎮"
+alldig$Town[alldig$CaseID=="5041"] = "金城鎮"
+alldig$Town[alldig$CaseID=="5051"] = "金城鎮"
+alldig$Town[alldig$CaseID=="5143"] = "金沙鎮"
+alldig$Town[alldig$CaseID=="5245"] = "烈嶼鄉"
 
 
 #### 抽選 ####
@@ -199,7 +166,7 @@ summarise(group_by(lottery.case2,PPName,Town),n=n())
 
 #調整輸出案件提報清單格式
 lottery.case3 = mutate(lottery.case2,city="金門縣政府",repair="自行修復",RoadType = ifelse(grepl("柏油路面",lottery.case2$RoadType),"柔性","剛性")) %>% 
-  select(.,CaseID,city,PPName,Town,EngUse,repair,Road,RoadType,Length,Width,Area,RptDate,CaseStatus,FiDate) %>% 
+  select(.,CaseID,city,PPName,Town,EngUse,repair,Road,RoadType,Length,Width,Area,CaseType,RptDate,CaseStatus,RptDate) %>% 
   `names<-`(c("案件編號","路權單位","申請單位","行政區","工程名稱","路面修復","施工地點","鋪面類型","挖掘長度","挖掘寬度","挖掘面積","報竣日期","案件狀態","完工結案日期"))
 #lottery.case3$完工結案日期 = as.Date(lottery.case3$報竣日期)
 
